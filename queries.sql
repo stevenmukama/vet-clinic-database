@@ -1,5 +1,3 @@
-    --Queries file
-
     SELECT * FROM animals WHERE name LIKE '%mon';
     SELECT name FROM animals WHERE date_of_birth BETWEEN '2016-1-1' AND '2019-12-31';
     SELECT name FROM animals WHERE neutered AND escape_attempts < 3;
@@ -56,18 +54,17 @@
     -- Avg escapes per type of those born between 1990 and 2000
     SELECT species, AVG(escape_attempts) FROM animals WHERE date_of_birth BETWEEN '1990-1-1' AND '2000-12-31' GROUP BY species;
 
-    -- Animals belong to Melody Pond
     SELECT animals.name FROM owners
     JOIN animals ON owners.id = animals.owner_id
     WHERE owners.full_name = 'Melody Pond';
-    -- All pokemons
+
     SELECT animals.name FROM animals
     JOIN species on animals.species_id = species.id
     WHERE species.name = 'Pokemon';
-    -- All owners and their animals
+
     SELECT owners.full_name, animals.name FROM owners
     LEFT JOIN animals on animals.owner_id = owners.id;
-    -- Animals count by species
+
     SELECT species.name, COUNT(*) FROM animals
     JOIN species ON species.id = animals.species_id
     GROUP BY species.name;
@@ -85,3 +82,57 @@
     JOIN animals ON animals.owner_id = owners.id
     GROUP BY owners.full_name ORDER BY COUNT(*) DESC
     LIMIT 1;
+
+    -- Last animal seen by William
+    SELECT a.name, v.date_of_visit FROM visits v
+    JOIN animals a ON v.animal_id = a.id
+    JOIN vets b ON v.vet_id = b.id
+    WHERE b.name = 'William Tatcher'
+    ORDER BY v.date_of_visit DESC
+    LIMIT 1;
+
+    SELECT COUNT(*) FROM visits v
+    JOIN animals a ON v.animal_id = a.id
+    JOIN vets b ON v.vet_id = b.id
+    WHERE b.name = 'Stephanie Mendez';
+
+    SELECT v.name, t.name FROM vets v
+    LEFT JOIN specializations s ON v.id = s.vet_id
+    LEFT JOIN species t ON t.id = s.species_id;
+
+    SELECT a.name, j.date_of_visit FROM animals a
+    JOIN visits j ON j.animal_id = a.id
+    JOIN vets v ON j.vet_id = v.id
+    WHERE v.name = 'Stephanie Mendez' AND
+    j.date_of_visit BETWEEN 'Apr 1, 2020' AND 'Aug 30, 2020';
+
+    SELECT a.name, COUNT(*) FROM animals a
+    JOIN visits j ON a.id = j.animal_id
+    GROUP BY a.name
+    ORDER BY COUNT(*) DESC LIMIT 1;
+
+    SELECT a.name, j.date_of_visit FROM vets v
+    JOIN visits j ON v.id = j.vet_id
+    JOIN animals a ON a.id = j.animal_id
+    WHERE v.name = 'Maisy Smith'
+    ORDER BY j.date_of_visit
+    LIMIT 1;
+
+    SELECT j.date_of_visit, v.*, a.* FROM vets v
+    JOIN visits j ON j.vet_id = v.id
+    JOIN animals a ON j.animal_id = a.id
+    ORDER BY j.date_of_visit DESC LIMIT 1;
+
+    SELECT v.name, COUNT(*) FROM vets v
+    JOIN visits j ON j.vet_id = v.id
+    JOIN animals a ON j.animal_id = a.id
+    LEFT JOIN specializations s ON s.vet_id = v.id
+    WHERE s.species_id != a.species_id OR s.species_id IS NULL
+    GROUP BY v.name;
+
+    SELECT s.name, COUNT(*) FROM vets v
+    JOIN visits j ON j.vet_id = v.id
+    JOIN animals a ON j.animal_id = a.id
+    JOIN species s ON a.species_id = s.id
+    WHERE v.name = 'Maisy Smith'
+    GROUP BY s.name ORDER BY COUNT(*) DESC LIMIT 1;
